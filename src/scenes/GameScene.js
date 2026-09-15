@@ -6,7 +6,7 @@ import Tongue from '../objects/Tongue.js';
 import Bug from '../objects/Bug.js';
 import QueenAnt from '../objects/QueenAnt.js';
 
-const TILE = 40;
+const TILE = 30;
 const TIME_LIMIT = 60;
 const CORRIDOR_COLOR = 0x3d2b1f;
 const WALL_COLOR = 0x8a5a2b;

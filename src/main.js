@@ -7,7 +7,7 @@ import ResultScene from './scenes/ResultScene.js';
 const config = {
   type: Phaser.AUTO,
   parent: 'game-container',
-  width: 800,
+  width: 900,
   height: 600,
   backgroundColor: '#1a1a2e',
   scene: [TitleScene, ControlsScene, GameScene, ResultScene],
