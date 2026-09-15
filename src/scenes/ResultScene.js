@@ -21,7 +21,9 @@ export default class ResultScene extends Phaser.Scene {
       .text(
         width / 2,
         height / 2,
-        victory ? `Tiempo restante: ${data.timeRemaining} s` : 'Se acabó el tiempo',
+        victory
+          ? `Tiempo restante: ${Number(data.timeRemaining).toFixed(1)} s`
+          : 'Se acabó el tiempo',
         { fontFamily: 'Arial', fontSize: '26px', color: '#ecf0f1' }
       )
       .setOrigin(0.5);

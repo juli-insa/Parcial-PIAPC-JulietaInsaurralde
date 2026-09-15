@@ -4,13 +4,13 @@ import level1 from '../levels/level1.js';
 import Anteater from '../objects/Anteater.js';
 import Tongue from '../objects/Tongue.js';
 import Bug from '../objects/Bug.js';
+import QueenAnt from '../objects/QueenAnt.js';
 
 const TILE = 40;
 const TIME_LIMIT = 60;
 const CORRIDOR_COLOR = 0x3d2b1f;
 const WALL_COLOR = 0x8a5a2b;
 const ENTRY_COLOR = 0x2ecc71;
-const QUEEN_COLOR = 0xe91e63;
 
 export default class GameScene extends Phaser.Scene {
   constructor() {
@@ -25,7 +25,7 @@ export default class GameScene extends Phaser.Scene {
     this.maze = new Maze(level1);
     this.drawMaze();
     this.drawMarker(level1.entry, ENTRY_COLOR, 'ENTRADA');
-    this.drawMarker(level1.queen, QUEEN_COLOR, 'REINA');
+    this.queen = new QueenAnt(this, this.maze, TILE);
 
     this.hudTimer = this.add.text(10, 10, `Tiempo: ${TIME_LIMIT}`, {
       fontFamily: 'Arial',
@@ -59,6 +59,34 @@ export default class GameScene extends Phaser.Scene {
     this.tongue.update(delta);
     this.bug.update(delta);
     this.handleBugCollision();
+    if (this.gameOver) {
+      return;
+    }
+    this.handleQueenCollision();
+  }
+
+  handleQueenCollision() {
+    if (this.gameOver) {
+      return;
+    }
+    if (!(this.timeRemaining > 0)) {
+      return;
+    }
+
+    const tongue = this.tongue;
+    const queen = this.queen;
+    const distance = Math.hypot(tongue.x - queen.x, tongue.y - queen.y);
+    if (distance < tongue.radius + queen.radius) {
+      this.victory();
+    }
+  }
+
+  victory() {
+    this.gameOver = true;
+    this.scene.start('ResultScene', {
+      result: 'victory',
+      timeRemaining: this.timeRemaining,
+    });
   }
 
   handleBugCollision() {
