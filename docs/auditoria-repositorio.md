@@ -61,6 +61,7 @@ Auditoria final del repositorio del proyecto "Captura a la Reina".
 
 - `npm run build`: exitoso, 16 modulos, sin errores ni advertencias.
 - `npm run dev`: servidor responde correctamente; los archivos modificados en cada bloque respondieron HTTP 200.
+- Arranque en Edge headless: la TitleScene carga sin excepciones JS y una captura real (900×600) confirmo render grafico por analisis de pixeles (508 colores distintos).
 - No hay cambios de codigo en el Bloque 15: solo edicion de documentacion (verificado por `npm run build` y `git status`).
 
 ## Estado del repositorio

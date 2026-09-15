@@ -62,7 +62,8 @@ Toda la representacion se construye por codigo con Phaser Graphics y Text (sin i
 ## Pruebas realizadas
 
 - Build: `npm run build` exitoso (16 modulos) a lo largo de todos los bloques.
-- Dev: `npm run dev` con respuestas HTTP 200 sobre los archivos modificados.
+- Dev: `npm run dev` con respuestas HTTP 200 sobre index.html y los 13 modulos de `src/`.
+- Navegador headless (Edge): arranque de la TitleScene sin excepciones JS en consola y captura real de 900×600; el analisis de pixeles (508 colores distintos, R media 98) confirma render grafico real de la escena.
 - Headless (logica pura, scripts temporales de Node): BFS del laberinto (119/119 corredores alcanzables, camino entrada→reina de 44 pasos); MazePath (caminos validos por corredores y retroceso); simulacion de los 4 escarabajos (160 000 pasos dentro de corredores y de sus rutas); simulacion de colisiones (descuento por contacto independiente, derrota por 0, nunca negativos); replica del temporizador (60 s, sin valores negativos); replica del reinicio (estado inicial restaurado).
 
 ## Resultados
