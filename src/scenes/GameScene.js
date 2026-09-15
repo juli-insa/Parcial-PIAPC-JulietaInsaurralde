@@ -1,6 +1,8 @@
 import Phaser from 'phaser';
 import Maze from '../game/Maze.js';
 import level1 from '../levels/level1.js';
+import Anteater from '../objects/Anteater.js';
+import Tongue from '../objects/Tongue.js';
 
 const TILE = 40;
 const CORRIDOR_COLOR = 0x3d2b1f;
@@ -18,6 +20,16 @@ export default class GameScene extends Phaser.Scene {
     this.drawMaze();
     this.drawMarker(level1.entry, ENTRY_COLOR, 'ENTRADA');
     this.drawMarker(level1.queen, QUEEN_COLOR, 'REINA');
+
+    const startX = level1.entry.col * TILE + TILE / 2;
+    const startY = level1.entry.row * TILE + TILE / 2;
+
+    this.anteater = new Anteater(this, { x: startX, y: startY }, TILE);
+    this.tongue = new Tongue(this, this.maze, { x: startX, y: startY }, TILE);
+  }
+
+  update(time, delta) {
+    this.tongue.update(delta);
   }
 
   drawMaze() {
