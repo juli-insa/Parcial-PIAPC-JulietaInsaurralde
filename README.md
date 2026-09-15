@@ -1,52 +1,64 @@
-# Plantilla PIAPC para repositorios individuales
+# Captura a la Reina
 
-Esta plantilla prepara un repositorio publico e individual para proyectos academicos de videojuegos. Es independiente del motor, lenguaje y tipo de juego.
-
-## Como usarla
-
-1. Crea un repositorio individual desde esta plantilla y conserva el commit inicial.
-2. Completa los datos de este archivo y de `GDD.md` cuando la consigna defina el problema de diseno.
-3. Agrega el proyecto creado con el motor elegido, sin mezclar archivos de otros motores.
-4. Incorpora al `.gitignore` las reglas oficiales o recomendadas para ese motor.
-5. Completa los documentos de `docs/` en el orden indicado por `docs/README.md`.
-6. Conserva commits pequenos y revisables durante el desarrollo.
+Proyecto académico individual de videojuego desarrollado sobre la plantilla PIAPC (Phaser + Vite, JavaScript).
 
 ## Datos del proyecto
 
 - Estudiante: Julieta Insaurralde
-- Materia, comision y anio: [PENDIENTE]
+- Materia, comision y anio: [PENDIENTE - lo define la catedra]
 - Nombre del proyecto: Captura a la Reina
 - Motor y version: Phaser 4.2.1
-- Estado: En desarrollo
+- Build tool: Vite 7.3.6
+- Node.js probado: 22.12.0
+- Estado: **Completo (v1.0 final)**
 
 ## Descripcion
 
-El jugador controla la lengua de un oso hormiguero que se introduce dentro de un hormiguero con estructura de laberinto. El objetivo es recorrer correctamente el laberinto y llegar hasta la hormiga reina antes de que se agote el tiempo. Existe un escarabajo que actua como obstaculo; al tocarlo se descuentan 5 segundos del temporizador. El tiempo representa el efecto del veneno de las hormigas sobre el oso.
+El jugador controla la lengua de un oso hormiguero que se introduce dentro de un hormiguero con estructura de laberinto de 30×20. El objetivo es recorrer correctamente el laberinto y llegar hasta la hormiga reina antes de que se agote el tiempo. Hay **cuatro escarabajos** que patrullan recorridos propios; cada contacto con uno descuenta 5 segundos del temporizador. El tiempo representa el efecto del veneno de las hormigas sobre el oso.
 
 ## Requisitos y ejecucion
 
-- Motor: Phaser 4.2.1
-- Build tool: Vite
+- Motor y version: Phaser 4.2.1
+- Build tool: Vite 7.3.6 (requiere Node.js ^20.19.0 o >=22.12.0)
+- Probado con: Node.js 22.12.0 y npm
 - Plataforma: navegador web
 - Lenguaje: JavaScript (ES modules)
-- Requisitos: Node.js >= 18, npm
+- Graficos y audio: generados en tiempo de ejecucion (Phaser Graphics + Web Audio), sin assets externos
 
 Pasos:
+
 1. Clonar el repositorio
 2. Ejecutar `npm install`
 3. Ejecutar `npm run dev` para iniciar el servidor de desarrollo
 4. Abrir la URL mostrada en el navegador (por defecto `http://localhost:5173`)
+5. Para generar la version de produccion: `npm run build` (salida en `dist/`)
+6. Para previsualizar el build: `npm run preview`
 
 ## Controles
 
-- Flechas ↑ ↓ ← →: mover la lengua en 4 direcciones
-- ENTER: avanzar entre pantallas, reiniciar partida
-- No se permite movimiento diagonal
+- Flechas ↑ ↓ ← →: mover la lengua en 4 direcciones (sin diagonales)
+- ENTER: avanzar entre pantallas y reiniciar la partida
+- El oso hormiguero permanece siempre mirando a la derecha; solo se mueve la lengua
+
+## Graficos y audio
+
+- **Graficos**: 100% procedurales con `Phaser.GameObjects.Graphics` (fondo, laberinto, personajes, pantallas). No hay imagenes externas.
+- **Audio**: 100% procedural con Web Audio (`src/audio/AudioController.js`): musica de fondo generativa (loop a 105 BPM) y efectos sonoros (avance entre pantallas, golpe de escarabajo, choque contra pared, fanfarria de victoria y derrota). No hay archivos de audio externos.
+
+## Arquitectura de codigo
+
+- `src/main.js`: configuracion de Phaser y registro de escenas
+- `src/scenes/` — TitleScene, ControlsScene, GameScene, ResultScene
+- `src/objects/` — Anteater, Tongue, Bug, QueenAnt
+- `src/game/` — Maze (laberinto y colisiones), MazePath (camino de la lengua por los corredores)
+- `src/levels/level1.js` — nivel unico: laberinto fijo 30×20 (119 corredores / 481 paredes), entrada `{1,1}`, reina `{28,18}`
+- `src/audio/AudioController.js` — audio procedural
 
 ## Creditos
 
-[TODAVIA NO HAY ASSETS DECLARADOS]
+- Assets externos: **ninguno** (graficos y audio generados por codigo)
+- Librerias: Phaser 4.2.1, Vite 7.3.6
 
 ## Entrega o demostracion
 
-[PENDIENTE]
+[PENDIENTE - fecha y modalidad de entrega definida por la catedra]
