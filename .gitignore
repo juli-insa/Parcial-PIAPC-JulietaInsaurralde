@@ -1,4 +1,4 @@
-# Reglas comunes. Agrega aqui el .gitignore oficial o recomendado del motor elegido.
+# Reglas comunes
 .DS_Store
 Thumbs.db
 
@@ -6,3 +6,19 @@ Thumbs.db
 .env
 .env.*
 !.env.example
+
+# Dependencias de Node.js
+node_modules/
+
+# Salidas de build
+dist/
+dist-ssr/
+
+# Logs
+logs/
+*.log
+npm-debug.log*
+
+# Editor / IDE
+.vscode/
+.idea/

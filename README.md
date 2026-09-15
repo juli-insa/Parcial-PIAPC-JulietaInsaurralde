@@ -13,28 +13,40 @@ Esta plantilla prepara un repositorio publico e individual para proyectos academ
 
 ## Datos del proyecto
 
-- Estudiante: [PENDIENTE]
+- Estudiante: Julieta Insaurralde
 - Materia, comision y anio: [PENDIENTE]
-- Nombre del proyecto: [PENDIENTE]
-- Motor y version: [PENDIENTE]
-- Estado: [PENDIENTE]
+- Nombre del proyecto: Captura a la Reina
+- Motor y version: Phaser 4.2.1
+- Estado: En desarrollo
 
 ## Descripcion
 
-[Explica brevemente el juego o prototipo y su objetivo actual.]
+El jugador controla la lengua de un oso hormiguero que se introduce dentro de un hormiguero con estructura de laberinto. El objetivo es recorrer correctamente el laberinto y llegar hasta la hormiga reina antes de que se agote el tiempo. Existe un escarabajo que actua como obstaculo; al tocarlo se descuentan 5 segundos del temporizador. El tiempo representa el efecto del veneno de las hormigas sobre el oso.
 
 ## Requisitos y ejecucion
 
-[Indica el motor, herramientas, versiones y pasos necesarios para abrir o ejecutar el proyecto.]
+- Motor: Phaser 4.2.1
+- Build tool: Vite
+- Plataforma: navegador web
+- Lenguaje: JavaScript (ES modules)
+- Requisitos: Node.js >= 18, npm
+
+Pasos:
+1. Clonar el repositorio
+2. Ejecutar `npm install`
+3. Ejecutar `npm run dev` para iniciar el servidor de desarrollo
+4. Abrir la URL mostrada en el navegador (por defecto `http://localhost:5173`)
 
 ## Controles
 
-[Describe los controles disponibles o indica que todavia no existen.]
+- Flechas ↑ ↓ ← →: mover la lengua en 4 direcciones
+- ENTER: avanzar entre pantallas, reiniciar partida
+- No se permite movimiento diagonal
 
 ## Creditos
 
-[Declara assets, sonidos, tipografias, plugins, codigo, referencias y licencias de terceros.]
+[TODAVIA NO HAY ASSETS DECLARADOS]
 
 ## Entrega o demostracion
 
-[Agrega el enlace a una compilacion, video o publicacion cuando la entrega lo requiera.]
+[PENDIENTE]
