@@ -3,6 +3,7 @@ import Maze from '../game/Maze.js';
 import level1 from '../levels/level1.js';
 import Anteater from '../objects/Anteater.js';
 import Tongue from '../objects/Tongue.js';
+import Bug from '../objects/Bug.js';
 
 const TILE = 40;
 const TIME_LIMIT = 60;
@@ -19,6 +20,7 @@ export default class GameScene extends Phaser.Scene {
   create() {
     this.timeRemaining = TIME_LIMIT;
     this.gameOver = false;
+    this.bugInContact = false;
 
     this.maze = new Maze(level1);
     this.drawMaze();
@@ -36,6 +38,7 @@ export default class GameScene extends Phaser.Scene {
 
     this.anteater = new Anteater(this, { x: startX, y: startY }, TILE);
     this.tongue = new Tongue(this, this.maze, { x: startX, y: startY }, TILE);
+    this.bug = new Bug(this, this.maze, TILE);
   }
 
   update(time, delta) {
@@ -54,6 +57,25 @@ export default class GameScene extends Phaser.Scene {
 
     this.hudTimer.setText(`Tiempo: ${Math.ceil(this.timeRemaining)}`);
     this.tongue.update(delta);
+    this.bug.update(delta);
+    this.handleBugCollision();
+  }
+
+  handleBugCollision() {
+    const tongue = this.tongue;
+    const bug = this.bug;
+    const distance = Math.hypot(tongue.x - bug.x, tongue.y - bug.y);
+    const inContact = distance < tongue.radius + bug.radius;
+
+    if (inContact && !this.bugInContact) {
+      this.timeRemaining = Math.max(0, this.timeRemaining - 5);
+      this.hudTimer.setText(`Tiempo: ${Math.ceil(this.timeRemaining)}`);
+      if (this.timeRemaining <= 0) {
+        this.endGame();
+      }
+    }
+
+    this.bugInContact = inContact;
   }
 
   endGame() {
