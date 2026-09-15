@@ -1,4 +1,6 @@
 import Phaser from 'phaser';
+import cellPath from '../game/MazePath.js';
+import audio from '../audio/AudioController.js';
 
 const BODY_COLOR = 0xf1948a;
 const BODY_EDGE_COLOR = 0xc0392b;
@@ -17,6 +19,12 @@ export default class Tongue {
     this.y = start.y;
     this.activeDirs = [];
     this.lastDir = null;
+    this.startCell = maze.entry || {
+      col: Math.floor(start.x / tileSize),
+      row: Math.floor(start.y / tileSize),
+    };
+    this._pathKey = null;
+    this._path = [];
     this.graphics = scene.add.graphics();
     this.bindKeys();
     this.draw();
@@ -61,11 +69,20 @@ export default class Tongue {
     else if (dir === 'up') vy = -this.speed;
     else if (dir === 'down') vy = this.speed;
 
-    if (this.canPlace(this.x + vx * deltaSec, this.y)) {
-      this.x += vx * deltaSec;
+    let blocked = false;
+    if (vx !== 0) {
+      if (this.canPlace(this.x + vx * deltaSec, this.y)) {
+        this.x += vx * deltaSec;
+      } else {
+        blocked = true;
+      }
     }
-    if (this.canPlace(this.x, this.y + vy * deltaSec)) {
-      this.y += vy * deltaSec;
+    if (vy !== 0) {
+      if (this.canPlace(this.x, this.y + vy * deltaSec)) {
+        this.y += vy * deltaSec;
+      } else {
+        blocked = true;
+      }
     }
 
     if (vx < 0) this.lastDir = 'left';
@@ -73,6 +90,10 @@ export default class Tongue {
     else if (vy < 0) this.lastDir = 'up';
     else if (vy > 0) this.lastDir = 'down';
     else if (dir === null) this.lastDir = null;
+
+    if (blocked && dir !== null) {
+      audio.playThud();
+    }
 
     this.draw();
   }
@@ -88,43 +109,100 @@ export default class Tongue {
     );
   }
 
+  getPathCells(tipCol, tipRow) {
+    const key = `${tipCol}:${tipRow}`;
+    if (key === this._pathKey) {
+      return this._path;
+    }
+    this._path = cellPath(this.maze, this.startCell, { col: tipCol, row: tipRow });
+    this._pathKey = key;
+    return this._path;
+  }
+
   draw() {
     const g = this.graphics;
+    const tile = this.tileSize;
     g.clear();
 
     const origin = this.anteater ? this.anteater.snout : { x: this.x, y: this.y };
-    const dx = this.x - origin.x;
-    const dy = this.y - origin.y;
-    const dist = Math.hypot(dx, dy);
+    const tipCol = Math.floor(this.x / tile);
+    const tipRow = Math.floor(this.y / tile);
+    const cells = this.getPathCells(tipCol, tipRow);
 
-    if (dist < 2) {
+    const pts = [{ x: origin.x, y: origin.y }];
+    for (const c of cells) {
+      const px = c.col * tile + tile / 2;
+      const py = c.row * tile + tile / 2;
+      const lastPt = pts[pts.length - 1];
+      if (Math.hypot(px - lastPt.x, py - lastPt.y) < 3) {
+        continue;
+      }
+      pts.push({ x: px, y: py });
+    }
+    const lastPt = pts[pts.length - 1];
+    if (Math.hypot(this.x - lastPt.x, this.y - lastPt.y) >= 3) {
+      pts.push({ x: this.x, y: this.y });
+    }
+
+    const relaxed = this.lastDir === null;
+    const bodyWidth = relaxed ? 9 : 12;
+
+    let drawPts = pts;
+    if (relaxed && pts.length >= 3) {
+      let total = 0;
+      const lens = [];
+      for (let i = 1; i < pts.length; i++) {
+        const L = Math.hypot(pts[i].x - pts[i - 1].x, pts[i].y - pts[i - 1].y);
+        lens.push(L);
+        total += L;
+      }
+      const keep = total * 0.85;
+      let acc = 0;
+      let idx = 0;
+      while (idx < lens.length - 1 && acc + lens[idx] < keep) {
+        acc += lens[idx];
+        idx++;
+      }
+      const t = lens[idx] > 0 ? (keep - acc) / lens[idx] : 0;
+      const cut = {
+        x: pts[idx].x + (pts[idx + 1].x - pts[idx].x) * t,
+        y: pts[idx].y + (pts[idx + 1].y - pts[idx].y) * t,
+      };
+      drawPts = pts.slice(0, idx + 1);
+      drawPts.push(cut);
+    }
+
+    if (drawPts.length < 2) {
       g.fillStyle(TIP_COLOR, 1);
       g.fillCircle(this.x, this.y, this.radius);
       return;
     }
 
-    // contraída (sin tecla): un poco más corta y fina
-    const relaxed = this.lastDir === null;
-    const bodyLen = relaxed ? dist * 0.85 : dist;
-    const ex = origin.x + (dx / dist) * bodyLen;
-    const ey = origin.y + (dy / dist) * bodyLen;
-    const bodyWidth = relaxed ? 9 : 12;
+    // contorno
+    g.lineStyle(bodyWidth + 4, BODY_EDGE_COLOR, 1);
+    for (let i = 1; i < drawPts.length; i++) {
+      g.lineBetween(drawPts[i - 1].x, drawPts[i - 1].y, drawPts[i].x, drawPts[i].y);
+    }
+    g.fillStyle(BODY_EDGE_COLOR, 1);
+    for (const p of drawPts) {
+      g.fillCircle(p.x, p.y, (bodyWidth + 4) / 2);
+    }
 
-    // cuerpo alargado de la lengua
+    // cuerpo
     g.lineStyle(bodyWidth, BODY_COLOR, 1);
-    g.lineBetween(origin.x, origin.y, ex, ey);
+    for (let i = 1; i < drawPts.length; i++) {
+      g.lineBetween(drawPts[i - 1].x, drawPts[i - 1].y, drawPts[i].x, drawPts[i].y);
+    }
     g.fillStyle(BODY_COLOR, 1);
-    g.fillCircle(origin.x, origin.y, bodyWidth / 2);
-    g.fillCircle(ex, ey, bodyWidth / 2);
+    for (const p of drawPts) {
+      g.fillCircle(p.x, p.y, bodyWidth / 2);
+    }
 
-    // contorno sutil
-    g.lineStyle(1.5, BODY_EDGE_COLOR, 0.35);
-    g.lineBetween(origin.x, origin.y, ex, ey);
-
-    // punta reconocible
+    // punta
+    const tip = drawPts[drawPts.length - 1];
     g.fillStyle(TIP_COLOR, 1);
-    g.fillCircle(ex, ey, this.radius * 1.1);
+    g.fillCircle(tip.x, tip.y, this.radius * 1.05);
     g.fillStyle(TIP_DARK_COLOR, 1);
-    g.fillCircle(ex, ey, this.radius * 0.45);
+    g.fillCircle(tip.x, tip.y, this.radius * 0.45);
   }
 }

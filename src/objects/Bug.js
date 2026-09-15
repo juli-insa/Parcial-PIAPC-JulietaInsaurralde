@@ -24,6 +24,90 @@ const ROUTE = [
   { col: 2, row: 1 },
 ];
 
+const ROUTE_A = [
+  { col: 21, row: 3 },
+  { col: 21, row: 4 },
+  { col: 21, row: 5 },
+  { col: 21, row: 6 },
+  { col: 21, row: 7 },
+  { col: 21, row: 8 },
+  { col: 21, row: 9 },
+  { col: 21, row: 10 },
+  { col: 21, row: 11 },
+  { col: 21, row: 12 },
+  { col: 21, row: 13 },
+  { col: 21, row: 14 },
+  { col: 21, row: 15 },
+  { col: 21, row: 16 },
+  { col: 21, row: 15 },
+  { col: 21, row: 14 },
+  { col: 21, row: 13 },
+  { col: 21, row: 12 },
+  { col: 21, row: 11 },
+  { col: 21, row: 10 },
+  { col: 21, row: 9 },
+  { col: 21, row: 8 },
+  { col: 21, row: 7 },
+  { col: 21, row: 6 },
+  { col: 21, row: 5 },
+  { col: 21, row: 4 },
+  { col: 21, row: 3 },
+];
+
+const ROUTE_B = [
+  { col: 9, row: 13 },
+  { col: 10, row: 13 },
+  { col: 11, row: 13 },
+  { col: 12, row: 13 },
+  { col: 13, row: 13 },
+  { col: 14, row: 13 },
+  { col: 15, row: 13 },
+  { col: 16, row: 13 },
+  { col: 17, row: 13 },
+  { col: 18, row: 13 },
+  { col: 19, row: 13 },
+  { col: 20, row: 13 },
+  { col: 21, row: 13 },
+  { col: 22, row: 13 },
+  { col: 23, row: 13 },
+  { col: 24, row: 13 },
+  { col: 25, row: 13 },
+  { col: 24, row: 13 },
+  { col: 23, row: 13 },
+  { col: 22, row: 13 },
+  { col: 21, row: 13 },
+  { col: 20, row: 13 },
+  { col: 19, row: 13 },
+  { col: 18, row: 13 },
+  { col: 17, row: 13 },
+  { col: 16, row: 13 },
+  { col: 15, row: 13 },
+  { col: 14, row: 13 },
+  { col: 13, row: 13 },
+  { col: 12, row: 13 },
+  { col: 11, row: 13 },
+  { col: 10, row: 13 },
+  { col: 9, row: 13 },
+];
+
+const ROUTE_C = [
+  { col: 5, row: 4 },
+  { col: 6, row: 4 },
+  { col: 7, row: 4 },
+  { col: 8, row: 4 },
+  { col: 9, row: 4 },
+  { col: 9, row: 5 },
+  { col: 9, row: 6 },
+  { col: 9, row: 7 },
+  { col: 9, row: 6 },
+  { col: 9, row: 5 },
+  { col: 9, row: 4 },
+  { col: 8, row: 4 },
+  { col: 7, row: 4 },
+  { col: 6, row: 4 },
+  { col: 5, row: 4 },
+];
+
 export default class Bug {
   constructor(scene, maze, tileSize, route = ROUTE, speed = 90, radius = 14) {
     this.scene = scene;
@@ -128,4 +212,6 @@ export default class Bug {
   }
 }
 
-export { ROUTE };
+const ROUTES = [ROUTE, ROUTE_A, ROUTE_B, ROUTE_C];
+
+export { ROUTE, ROUTES };
