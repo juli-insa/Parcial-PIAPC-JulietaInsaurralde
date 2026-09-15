@@ -1,21 +1,29 @@
 import Phaser from 'phaser';
 
-const OUTER_COLOR = 0xec7063;
+const BODY_COLOR = 0xf1948a;
+const BODY_EDGE_COLOR = 0xc0392b;
 const TIP_COLOR = 0xe74c3c;
+const TIP_DARK_COLOR = 0x922b21;
 
 export default class Tongue {
-  constructor(scene, maze, start, tileSize, radius = 10, speed = 220) {
+  constructor(scene, maze, start, tileSize, radius = 10, speed = 220, anteater = null) {
     this.scene = scene;
     this.maze = maze;
     this.tileSize = tileSize;
     this.radius = radius;
     this.speed = speed;
+    this.anteater = anteater;
     this.x = start.x;
     this.y = start.y;
     this.activeDirs = [];
+    this.lastDir = null;
     this.graphics = scene.add.graphics();
     this.bindKeys();
     this.draw();
+  }
+
+  get direction() {
+    return this.lastDir;
   }
 
   bindKeys() {
@@ -60,6 +68,12 @@ export default class Tongue {
       this.y += vy * deltaSec;
     }
 
+    if (vx < 0) this.lastDir = 'left';
+    else if (vx > 0) this.lastDir = 'right';
+    else if (vy < 0) this.lastDir = 'up';
+    else if (vy > 0) this.lastDir = 'down';
+    else if (dir === null) this.lastDir = null;
+
     this.draw();
   }
 
@@ -75,11 +89,42 @@ export default class Tongue {
   }
 
   draw() {
-    const graphics = this.graphics;
-    graphics.clear();
-    graphics.fillStyle(OUTER_COLOR, 1);
-    graphics.fillCircle(this.x, this.y, this.radius);
-    graphics.fillStyle(TIP_COLOR, 1);
-    graphics.fillCircle(this.x, this.y, this.radius * 0.55);
+    const g = this.graphics;
+    g.clear();
+
+    const origin = this.anteater ? this.anteater.snout : { x: this.x, y: this.y };
+    const dx = this.x - origin.x;
+    const dy = this.y - origin.y;
+    const dist = Math.hypot(dx, dy);
+
+    if (dist < 2) {
+      g.fillStyle(TIP_COLOR, 1);
+      g.fillCircle(this.x, this.y, this.radius);
+      return;
+    }
+
+    // contraída (sin tecla): un poco más corta y fina
+    const relaxed = this.lastDir === null;
+    const bodyLen = relaxed ? dist * 0.85 : dist;
+    const ex = origin.x + (dx / dist) * bodyLen;
+    const ey = origin.y + (dy / dist) * bodyLen;
+    const bodyWidth = relaxed ? 9 : 12;
+
+    // cuerpo alargado de la lengua
+    g.lineStyle(bodyWidth, BODY_COLOR, 1);
+    g.lineBetween(origin.x, origin.y, ex, ey);
+    g.fillStyle(BODY_COLOR, 1);
+    g.fillCircle(origin.x, origin.y, bodyWidth / 2);
+    g.fillCircle(ex, ey, bodyWidth / 2);
+
+    // contorno sutil
+    g.lineStyle(1.5, BODY_EDGE_COLOR, 0.35);
+    g.lineBetween(origin.x, origin.y, ex, ey);
+
+    // punta reconocible
+    g.fillStyle(TIP_COLOR, 1);
+    g.fillCircle(ex, ey, this.radius * 1.1);
+    g.fillStyle(TIP_DARK_COLOR, 1);
+    g.fillCircle(ex, ey, this.radius * 0.45);
   }
 }

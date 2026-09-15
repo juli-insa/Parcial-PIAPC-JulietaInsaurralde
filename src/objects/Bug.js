@@ -1,5 +1,10 @@
-const OUTER_COLOR = 0x283747;
+const SHELL_COLOR = 0x283747;
+const SHELL_GLOSS = 0x5d6d7e;
+const HEAD_COLOR = 0x17202a;
 const SPOT_COLOR = 0x85929e;
+const LEG_COLOR = 0x17202a;
+const ANTENNA_COLOR = 0x17202a;
+const EYE_COLOR = 0xecf0f1;
 
 const ROUTE = [
   { col: 2, row: 1 },
@@ -33,6 +38,8 @@ export default class Bug {
     this.index = 0;
     this.x = this.route[0].x;
     this.y = this.route[0].y;
+    this._lastX = this.x;
+    this._lastY = this.y;
     this.graphics = scene.add.graphics();
     this.draw();
   }
@@ -65,12 +72,59 @@ export default class Bug {
   }
 
   draw() {
-    const graphics = this.graphics;
-    graphics.clear();
-    graphics.fillStyle(OUTER_COLOR, 1);
-    graphics.fillCircle(this.x, this.y, this.radius);
-    graphics.fillStyle(SPOT_COLOR, 1);
-    graphics.fillCircle(this.x, this.y, this.radius * 0.4);
+    const g = this.graphics;
+    g.clear();
+
+    // dirección de avance (puramente visual)
+    const mx = this.x - this._lastX;
+    const my = this.y - this._lastY;
+    const ml = Math.hypot(mx, my);
+    const fx = ml > 0.01 ? mx / ml : 1;
+    const fy = ml > 0.01 ? my / ml : 0;
+    this._lastX = this.x;
+    this._lastY = this.y;
+
+    const hx = this.x + fx * 9;
+    const hy = this.y + fy * 9;
+    const px = -fy;
+    const py = fx;
+
+    // patas (6)
+    g.lineStyle(2.5, LEG_COLOR, 1);
+    for (const side of [-1, 1]) {
+      for (let i = -1; i <= 1; i++) {
+        const ax = this.x + px * side * 4 + fx * i * 5;
+        const ay = this.y + py * side * 4 + fy * i * 5;
+        g.lineBetween(ax, ay, ax + px * side * 8, ay + py * side * 8);
+      }
+    }
+
+    // caparazón
+    g.fillStyle(SHELL_COLOR, 1);
+    g.fillCircle(this.x, this.y, this.radius);
+    g.fillStyle(SPOT_COLOR, 1);
+    g.fillCircle(this.x, this.y, this.radius * 0.4);
+
+    // brillo del caparazón
+    g.fillStyle(SHELL_GLOSS, 0.7);
+    g.fillCircle(this.x - fy * 4 - 4, this.y + fx * 4 - 4, 4.5);
+
+    // cabeza
+    g.fillStyle(HEAD_COLOR, 1);
+    g.fillCircle(hx, hy, 6);
+
+    // antenas
+    g.lineStyle(1.5, ANTENNA_COLOR, 1);
+    for (const side of [-1, 1]) {
+      const bend = side * 0.6;
+      g.lineBetween(hx, hy, hx + fx * 8 + px * bend * 3, hy + fy * 8 + py * bend * 3);
+      g.fillCircle(hx + fx * 8 + px * bend * 3, hy + fy * 8 + py * bend * 3, 1.5);
+    }
+
+    // ojos
+    g.fillStyle(EYE_COLOR, 1);
+    g.fillCircle(hx + px * 2, hy + py * 2, 1.3);
+    g.fillCircle(hx - px * 2, hy - py * 2, 1.3);
   }
 }
 

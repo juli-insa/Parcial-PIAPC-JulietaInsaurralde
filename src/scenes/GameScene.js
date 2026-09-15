@@ -8,9 +8,14 @@ import QueenAnt from '../objects/QueenAnt.js';
 
 const TILE = 30;
 const TIME_LIMIT = 60;
-const CORRIDOR_COLOR = 0x3d2b1f;
-const WALL_COLOR = 0x8a5a2b;
-const ENTRY_COLOR = 0x2ecc71;
+
+const CORRIDOR_COLOR = 0x5d4037;
+const CORRIDOR_DOT_COLOR = 0x6d4c41;
+const WALL_EDGE_COLOR = 0x4e342e;
+const WALL_COLOR = 0x795548;
+const WALL_HI_COLOR = 0x8d6e63;
+const ENTRY_LIGHT_COLOR = 0xa1887f;
+const ENTRY_STONE_COLOR = 0x6d4c41;
 
 export default class GameScene extends Phaser.Scene {
   constructor() {
@@ -24,12 +29,12 @@ export default class GameScene extends Phaser.Scene {
 
     this.maze = new Maze(level1);
     this.drawMaze();
-    this.drawMarker(level1.entry, ENTRY_COLOR, 'ENTRADA');
+    this.drawEntrance();
     this.queen = new QueenAnt(this, this.maze, TILE);
 
-    this.hudTimer = this.add.text(10, 10, `Tiempo: ${TIME_LIMIT}`, {
+    this.hudTimer = this.add.text(10, 6, `Tiempo: ${TIME_LIMIT}`, {
       fontFamily: 'Arial',
-      fontSize: '24px',
+      fontSize: '22px',
       color: '#ffffff',
     });
 
@@ -37,7 +42,7 @@ export default class GameScene extends Phaser.Scene {
     const startY = level1.entry.row * TILE + TILE / 2;
 
     this.anteater = new Anteater(this, { x: startX, y: startY }, TILE);
-    this.tongue = new Tongue(this, this.maze, { x: startX, y: startY }, TILE);
+    this.tongue = new Tongue(this, this.maze, { x: startX, y: startY }, TILE, 10, 220, this.anteater);
     this.bug = new Bug(this, this.maze, TILE);
   }
 
@@ -57,6 +62,7 @@ export default class GameScene extends Phaser.Scene {
 
     this.hudTimer.setText(`Tiempo: ${Math.ceil(this.timeRemaining)}`);
     this.tongue.update(delta);
+    this.anteater.face(this.tongue.direction);
     this.bug.update(delta);
     this.handleBugCollision();
     if (this.gameOver) {
@@ -123,30 +129,55 @@ export default class GameScene extends Phaser.Scene {
       }
     }
 
-    graphics.fillStyle(WALL_COLOR, 1);
+    // textura de tierra en corredores (patrón determinista)
+    graphics.fillStyle(CORRIDOR_DOT_COLOR, 1);
     for (let row = 0; row < this.maze.height; row++) {
       for (let col = 0; col < this.maze.width; col++) {
-        if (this.maze.isWall(col, row)) {
-          graphics.fillRect(col * TILE, row * TILE, TILE, TILE);
+        if (!this.maze.isWalkable(col, row)) {
+          continue;
+        }
+        const hash = (col * 2654435761) ^ ((row + 1) * 40503);
+        if ((hash & 7) === 0) graphics.fillRect(col * TILE + 6, row * TILE + 7, 3, 3);
+        if ((hash & 9) === 0) graphics.fillRect(col * TILE + 20, row * TILE + 20, 3, 3);
+        if ((hash & 11) === 0) graphics.fillRect(col * TILE + 12, row * TILE + 25, 3, 3);
+      }
+    }
+
+    // paredes: borde oscuro + cuerpo + centro claro (profundidad)
+    for (const [color, inset] of [
+      [WALL_EDGE_COLOR, 0],
+      [WALL_COLOR, 3],
+      [WALL_HI_COLOR, 6],
+    ]) {
+      graphics.fillStyle(color, 1);
+      for (let row = 0; row < this.maze.height; row++) {
+        for (let col = 0; col < this.maze.width; col++) {
+          if (this.maze.isWall(col, row)) {
+            graphics.fillRect(
+              col * TILE + inset,
+              row * TILE + inset,
+              TILE - inset * 2,
+              TILE - inset * 2
+            );
+          }
         }
       }
     }
   }
 
-  drawMarker(position, color, label) {
-    const x = position.col * TILE + TILE / 2;
-    const y = position.row * TILE + TILE / 2;
-
+  drawEntrance() {
+    const x = level1.entry.col * TILE + TILE / 2;
+    const y = level1.entry.row * TILE + TILE / 2;
     const graphics = this.add.graphics();
-    graphics.fillStyle(color, 1);
-    graphics.fillCircle(x, y, TILE / 3);
 
-    this.add
-      .text(x, y, label, {
-        fontFamily: 'Arial',
-        fontSize: '14px',
-        color: '#ffffff',
-      })
-      .setOrigin(0.5);
+    // montículo de tierra removida sobre el acceso
+    graphics.fillStyle(ENTRY_LIGHT_COLOR, 1);
+    graphics.fillCircle(x, y - TILE / 2 + 3, TILE * 0.42);
+
+    // piedritas que marcan el acceso
+    graphics.fillStyle(ENTRY_STONE_COLOR, 1);
+    graphics.fillCircle(x - TILE * 0.32, y + TILE * 0.12, 3);
+    graphics.fillCircle(x + TILE * 0.3, y - TILE * 0.25, 3);
+    graphics.fillCircle(x + TILE * 0.15, y + TILE * 0.18, 2.2);
   }
 }
