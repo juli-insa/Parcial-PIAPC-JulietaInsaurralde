@@ -1,0 +1,8 @@
+# Reglas comunes. Agrega aqui el .gitignore oficial o recomendado del motor elegido.
+.DS_Store
+Thumbs.db
+
+# No versionar credenciales ni configuraciones locales con secretos.
+.env
+.env.*
+!.env.example
